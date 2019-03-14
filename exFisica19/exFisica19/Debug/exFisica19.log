@@ -1,0 +1,8 @@
+﻿  Source.cpp
+c:\users\joaopedrosr\downloads\fisica\exfisica19\exfisica19\source.cpp(74): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+c:\users\joaopedrosr\downloads\fisica\exfisica19\exfisica19\source.cpp(226): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+c:\users\joaopedrosr\downloads\fisica\exfisica19\exfisica19\source.cpp(311): warning C4101: 'xpos': unreferenced local variable
+c:\users\joaopedrosr\downloads\fisica\exfisica19\exfisica19\source.cpp(311): warning C4101: 'ypos': unreferenced local variable
+c:\users\joaopedrosr\downloads\fisica\exfisica19\exfisica19\source.cpp(346): warning C4244: 'argument': conversion from 'double' to 'float32', possible loss of data
+  exFisica19.vcxproj -> C:\Users\joaopedrosr\Downloads\Fisica\exFisica19\Debug\exFisica19.exe
+  exFisica19.vcxproj -> C:\Users\joaopedrosr\Downloads\Fisica\exFisica19\Debug\exFisica19.pdb (Partial PDB)
