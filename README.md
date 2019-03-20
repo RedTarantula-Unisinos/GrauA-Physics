@@ -1,12 +1,13 @@
-## Exercícios Box2D
+# Exercícios Box2D
 
 
-###Instruções
+**Instruções**
+
 Abrir a solução dentro da pasta exFisica19 e executar o projeto;
 Caso seja necessário limpar o cenário, deve-se fechar e executar o projeto novamente
 
 
-###Controles
+**Controles**
 
 
 **ESC** - Sair
