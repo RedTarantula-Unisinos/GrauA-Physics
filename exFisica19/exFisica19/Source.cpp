@@ -12,6 +12,9 @@ void cursorEnterCallback(GLFWwindow* window, int entered);
 void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
 void scrollCallback(GLFWwindow* window, double xOffset, double yOffset);
 
+
+list<b2Body*> createdBodies;
+
 double xMPos = 0, yMPos = 0;
 int wind_width = 640;
 int wind_height = 480;
@@ -53,6 +56,8 @@ public:
 	void SetYMax(float _n) { yMax = _n; };
 
 	b2Body * CreateBoxAtPosition(double posX = 0, double posY = 0, int width = 2, int height = 2, double density = 10.0, double friction = 0.5, double resistution = 0.5);
+	b2Body * CreateCircleAtPosition(double posX, double posY, int radius, double density, double friction, double resistution);
+	b2Body * CreateLineAtPosition(double posX, double posY, int posX2, int posY2, double density, double friction, double resistution);
 
 	void SetBoxWidth(int w) { boxDef.w = w; };
 	void SetBoxHeight(int h) { boxDef.h = h; };
@@ -62,7 +67,15 @@ public:
 
 	BoxDefinition GetBoxDefinition() { return boxDef; }
 
+
+	void RandomizeBox(double mouseX, double mouseY);
+	void RandomizeBall(double mouseX, double mouseY);
+	void RandomizeLine(double mouseX, double mouseY);
+
 	void PrintBoxDefinition();
+
+	void DeleteAllBodies() { createdBodies.clear(); };
+	void DeleteLastBody() { createdBodies.pop_front(); };
 private:
 	float32 timesteps;
 	int32 velocityIterations, positionIterations;
@@ -78,15 +91,14 @@ GameManager manager;
 b2World *world;
 
 //Alguns corpos rígidos
-b2Body *box1, *box2;
-b2Body* ground;
+b2Body* ground,*wall1,*wall2,*ceiling;
 
 float scalingFactor = 6.0f;
 
-list<b2Body*> createdBodies;
 
 //Objeto para a classe que faz o desenho das formas de colisão dos corpos rígidos
 DebugDraw renderer;
+
 
 static void error_callback(int error, const char* description)
 {
@@ -94,6 +106,9 @@ static void error_callback(int error, const char* description)
 }
 
 int changingMode = 0;
+double ex4Res = 0;
+bool ex5CreatedRamp = false;
+double ex5Friction = 0;
 //Callback de teclado - PADRÃO DA GLFW - alterar conforme desejar (teclas de controle do programa)
 static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
@@ -106,8 +121,71 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 	5 - Resistution
 	*/
 
+	double mX = 0;
+	double mY = 0;
+
 	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, GL_TRUE);
+
+	if (key == GLFW_KEY_B && action == GLFW_PRESS) // Creates random box at mouse
+	{
+		glfwGetCursorPos(window, &mX, &mY);
+		double spawnXPos = (mX - (wind_width / 2));
+		double spawnYPos = (mY - (wind_height / 2));
+		manager.RandomizeBox(spawnXPos/scalingFactor, -spawnYPos / scalingFactor);
+	}
+	if (key == GLFW_KEY_C && action == GLFW_PRESS) // Creates random ball at mouse
+	{
+		glfwGetCursorPos(window, &mX, &mY);
+		double spawnXPos = (mX - (wind_width / 2));
+		double spawnYPos = (mY - (wind_height / 2));
+		manager.RandomizeBall(spawnXPos / scalingFactor, -spawnYPos / scalingFactor);
+	}
+	if (key == GLFW_KEY_L && action == GLFW_PRESS) // Creates random line at mouse
+	{
+		glfwGetCursorPos(window, &mX, &mY);
+		double spawnXPos = (mX - (wind_width / 2));
+		double spawnYPos = (mY - (wind_height / 2));
+		manager.RandomizeLine(spawnXPos / scalingFactor, -spawnYPos / scalingFactor);
+	}
+
+	if (key == GLFW_KEY_R && action == GLFW_PRESS) // Creates Box at the center and increases the rest. everytime until it reaches 1.0
+	{
+		glfwGetCursorPos(window, &mX, &mY);
+		double spawnXPos = (mX - (wind_width / 2));
+		double spawnYPos = (mY - (wind_height / 2));
+		if (ex4Res < 1)
+		{
+			manager.CreateBoxAtPosition(0,-30);
+			ex4Res++;
+		}
+	}
+
+	if (key == GLFW_KEY_T && action == GLFW_PRESS) // Creates Ramp
+	{
+		if (!ex5CreatedRamp) {
+			manager.CreateLineAtPosition(-50, 10, 40, -40, 10.0, .5, .5);
+			ex5CreatedRamp = true;
+		}
+	}
+	if (key == GLFW_KEY_Y && action == GLFW_PRESS) // Creates Box on Ramp
+	{
+		if (ex5CreatedRamp && ex5Friction < 1) {
+			manager.CreateBoxAtPosition(-45, 12, 2, 2, 10.0, ex5Friction, 0.5);
+			ex5Friction += 0.1;
+			std::cout << "Friction is now: " << ex5Friction << std::endl;
+		}
+	}
+
+	/*if (key == GLFW_KEY_DELETE && action == GLFW_PRESS)
+	{
+		manager.DeleteAllBodies();
+	}
+	if (key == GLFW_KEY_Z && action == GLFW_PRESS)
+	{
+		manager.DeleteLastBody();
+	}*/
+
 
 	if ((key == GLFW_KEY_KP_ADD || key == GLFW_KEY_EQUAL) && action == GLFW_PRESS) {
 
@@ -199,18 +277,27 @@ void InitBox2D()
 	manager.SetPositionIt(8);
 	manager.SetTimeSteps(1.0f / 60.0f); // 60 FPS
 
-
-	box1 = manager.CreateBoxAtPosition(-10, 10,2,2);
-
-
 	//Cria o chão
 	//criação do corpo rígido
 	b2BodyDef bd;
 	ground = world->CreateBody(&bd);
+	wall1 = world->CreateBody(&bd);
+	wall2 = world->CreateBody(&bd);
+	ceiling = world->CreateBody(&bd);
 	//Forma do chão: edge
+
 	b2EdgeShape shape;
-	shape.Set(b2Vec2(-39.5, -39.5), b2Vec2(39.5, -39.5));
+
+	shape.Set(b2Vec2(-50, -39.5), b2Vec2(50, -39.5));
 	ground->CreateFixture(&shape, 1.0);
+
+	shape.Set(b2Vec2(-50, 39.5), b2Vec2(50, 39.5));
+	ground->CreateFixture(&shape, 1.0);
+
+	shape.Set(b2Vec2(-50, -39.5), b2Vec2(-50, 39.5));
+	wall1->CreateFixture(&shape, 1.0);
+	shape.Set(b2Vec2(50, -39.5), b2Vec2(50, 39.5));
+	wall2->CreateFixture(&shape, 1.0);
 
 }
 
@@ -422,6 +509,8 @@ int main(void)
 
 b2Body *GameManager::CreateBoxAtPosition(double posX, double posY, int width, int height, double density, double friction, double resistution)
 {
+	std::cout << "trying to create box at " << posX << "x" << posY << std::endl;
+
 	b2Body *box;
 
 
@@ -448,7 +537,64 @@ b2Body *GameManager::CreateBoxAtPosition(double posX, double posY, int width, in
 
 	return box;
 }
+b2Body *GameManager::CreateCircleAtPosition(double posX, double posY, int radius, double density, double friction, double resistution)
+{
+	std::cout << "trying to create circle at " << posX << "x" << posY << std::endl;
 
+	b2Body *circle;
+
+
+	b2BodyDef bodyDef;
+	bodyDef.position.Set(posX, posY);
+	bodyDef.type = b2_dynamicBody;
+
+	b2CircleShape shape;
+	shape.m_radius = radius;
+
+		
+
+
+	b2FixtureDef fix;
+	fix.shape = &shape;
+
+	fix.density = 10.0;
+	fix.friction = 0.5;
+	fix.restitution = 0.5;
+
+	//Por fim, criamos o corpo...
+	circle = world->CreateBody(&bodyDef);
+	//... e criamos a fixture do corpo 	
+	circle->CreateFixture(&fix);
+
+	return circle;
+}
+b2Body *GameManager::CreateLineAtPosition(double posX, double posY, int posX2, int posY2, double density, double friction, double resistution)
+{
+
+	std::cout << "trying to create line at " << posX << "x" << posY << std::endl;
+
+	b2Body *line;
+
+
+	b2BodyDef bd;
+	line = world->CreateBody(&bd);
+	bd.type = b2_dynamicBody;
+
+	b2EdgeShape shape;
+
+	shape.Set(b2Vec2(posX, posY), b2Vec2(posX2, posY2));
+
+	b2FixtureDef fix;
+	fix.shape = &shape;
+	//Setamos outras propriedades da fixture
+	fix.density = density;
+	fix.friction = friction;
+	fix.restitution = resistution;
+
+	line->CreateFixture(&shape,density);
+
+	return line;
+}
 void GameManager::PrintBoxDefinition()
 {
 	std::cout << "=====================" << std::endl;
@@ -508,4 +654,44 @@ void scrollCallback(GLFWwindow * window, double xOffset, double yOffset)
 	/*std::cout << xOffset << ":" << yOffset << std::endl;*/
 
 
+}
+
+void GameManager::RandomizeBox(double mouseX, double mouseY)
+{
+	std::cout << "trying to create random box" << std::endl;
+
+	int rand_size = 1 + rand() % 12;
+	double rand_density = 1 + rand() % 1000;
+	double rand_friction = (1 + rand() % 10) / 10;
+	double rand_resistution = (1 + rand() % 10) / 10;
+
+	createdBodies.push_front(manager.CreateBoxAtPosition(mouseX, mouseY, rand_size, rand_size, rand_density, rand_friction, rand_resistution));
+}
+
+void GameManager::RandomizeBall(double mouseX, double mouseY)
+{
+	std::cout << "trying to create randoom ball" << std::endl;
+
+	int rand_radius = 1 + rand() % 12;
+	double rand_density = 1 + rand() % 1000;
+	double rand_friction = (1 + rand() % 10) / 10;
+	double rand_resistution = (1 + rand() % 10) / 10;
+
+	createdBodies.push_front(manager.CreateCircleAtPosition(mouseX, mouseY, rand_radius, rand_density, rand_friction, rand_resistution));
+}
+
+void GameManager::RandomizeLine(double mouseX, double mouseY)
+{
+	std::cout << "trying to create random line" << std::endl;
+
+	double distance = 2 + rand() % 30;
+
+	double rand_x = rand() % 30 - distance;
+	double rand_y = rand() % 30 - distance;
+
+	double rand_density = 1 + rand() % 1000;
+	double rand_friction = (1 + rand() % 10) / 10;
+	double rand_resistution = (1 + rand() % 10) / 10;
+
+	createdBodies.push_front(manager.CreateLineAtPosition(mouseX, mouseY, rand_x, rand_y, rand_density, rand_friction, rand_resistution));
 }

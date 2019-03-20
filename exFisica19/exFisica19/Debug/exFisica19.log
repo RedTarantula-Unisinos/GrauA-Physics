@@ -1,6 +1,15 @@
 ﻿  Source.cpp
-f:\unisinos\repositories\physicsbox2d\exfisica19\exfisica19\source.cpp(334): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
-f:\unisinos\repositories\physicsbox2d\exfisica19\exfisica19\source.cpp(429): warning C4244: 'argument': conversion from 'double' to 'float32', possible loss of data
-f:\unisinos\repositories\physicsbox2d\exfisica19\exfisica19\source.cpp(434): warning C4244: 'argument': conversion from 'int' to 'float32', possible loss of data
+f:\unisinos\repositories\physicsbox2d\exfisica19\exfisica19\source.cpp(421): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+f:\unisinos\repositories\physicsbox2d\exfisica19\exfisica19\source.cpp(518): warning C4244: 'argument': conversion from 'double' to 'float32', possible loss of data
+f:\unisinos\repositories\physicsbox2d\exfisica19\exfisica19\source.cpp(523): warning C4244: 'argument': conversion from 'int' to 'float32', possible loss of data
+f:\unisinos\repositories\physicsbox2d\exfisica19\exfisica19\source.cpp(548): warning C4244: 'argument': conversion from 'double' to 'float32', possible loss of data
+f:\unisinos\repositories\physicsbox2d\exfisica19\exfisica19\source.cpp(552): warning C4244: '=': conversion from 'int' to 'float32', possible loss of data
+f:\unisinos\repositories\physicsbox2d\exfisica19\exfisica19\source.cpp(585): warning C4244: 'argument': conversion from 'double' to 'float32', possible loss of data
+f:\unisinos\repositories\physicsbox2d\exfisica19\exfisica19\source.cpp(585): warning C4244: 'argument': conversion from 'int' to 'float32', possible loss of data
+f:\unisinos\repositories\physicsbox2d\exfisica19\exfisica19\source.cpp(590): warning C4244: '=': conversion from 'double' to 'float32', possible loss of data
+f:\unisinos\repositories\physicsbox2d\exfisica19\exfisica19\source.cpp(591): warning C4244: '=': conversion from 'double' to 'float32', possible loss of data
+f:\unisinos\repositories\physicsbox2d\exfisica19\exfisica19\source.cpp(592): warning C4244: '=': conversion from 'double' to 'float32', possible loss of data
+f:\unisinos\repositories\physicsbox2d\exfisica19\exfisica19\source.cpp(594): warning C4244: 'argument': conversion from 'double' to 'float32', possible loss of data
+f:\unisinos\repositories\physicsbox2d\exfisica19\exfisica19\source.cpp(696): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
   exFisica19.vcxproj -> F:\Unisinos\Repositories\PhysicsBox2D\exFisica19\Debug\exFisica19.exe
   exFisica19.vcxproj -> F:\Unisinos\Repositories\PhysicsBox2D\exFisica19\Debug\exFisica19.pdb (Partial PDB)
