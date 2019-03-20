@@ -7,8 +7,24 @@
 
 using namespace std;
 
-static void glfwSetCursorPosCallback(GLFWwindow* window, double posX, double posY);
+static void cursorPosCallback(GLFWwindow* window, double posX, double posY);
 void cursorEnterCallback(GLFWwindow* window, int entered);
+void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
+void scrollCallback(GLFWwindow* window, double xOffset, double yOffset);
+
+double xMPos = 0, yMPos = 0;
+int wind_width = 640;
+int wind_height = 480;
+
+struct BoxDefinition
+{
+	int w = 1;
+	int h = 1;
+	double d = 10.0;
+	double f = 1.0;
+	double r = 1.0;
+};
+
 
 class GameManager
 {
@@ -36,12 +52,23 @@ public:
 	float GetYMax() { return yMax; };
 	void SetYMax(float _n) { yMax = _n; };
 
-	b2Body *CreateBoxAtMouse(float mouseX, float mouseY);
-	b2Body *CreateBoxAtPosition(double posX, double posY);
+	b2Body * CreateBoxAtPosition(double posX = 0, double posY = 0, int width = 2, int height = 2, double density = 10.0, double friction = 0.5, double resistution = 0.5);
+
+	void SetBoxWidth(int w) { boxDef.w = w; };
+	void SetBoxHeight(int h) { boxDef.h = h; };
+	void SetBoxDensity(double d) { boxDef.d = d; };
+	void SetBoxFriction(double f) { boxDef.f = f; };
+	void SetBoxResistution(double r) { boxDef.r = r; };
+
+	BoxDefinition GetBoxDefinition() { return boxDef; }
+
+	void PrintBoxDefinition();
 private:
 	float32 timesteps;
 	int32 velocityIterations, positionIterations;
 	float xMin = -40.0f, xMax = 40.0f, yMin = -40.0f, yMax = 40.0f;
+
+	BoxDefinition boxDef;
 };
 
 
@@ -54,6 +81,8 @@ b2World *world;
 b2Body *box1, *box2;
 b2Body* ground;
 
+float scalingFactor = 6.0f;
+
 list<b2Body*> createdBodies;
 
 //Objeto para a classe que faz o desenho das formas de colisão dos corpos rígidos
@@ -64,19 +93,96 @@ static void error_callback(int error, const char* description)
 	fputs(description, stderr);
 }
 
+int changingMode = 0;
 //Callback de teclado - PADRÃO DA GLFW - alterar conforme desejar (teclas de controle do programa)
 static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
+	/*
+	0 - Width and Height
+	1- Width
+	2- Height
+	3- Density
+	4- Friction
+	5 - Resistution
+	*/
+
 	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, GL_TRUE);
 
-	if (key == GLFW_KEY_B && action == GLFW_PRESS) {
-		std::cout << "Pressed B" << endl;
-		double xpos, ypos;
-		glfwGetCursorPos(window, &xpos, &ypos);
-		createdBodies.push_front(manager.CreateBoxAtMouse(xpos, ypos));
+	if ((key == GLFW_KEY_KP_ADD || key == GLFW_KEY_EQUAL) && action == GLFW_PRESS) {
+
+		BoxDefinition boxDef = manager.GetBoxDefinition();
+
+		int current_boxWidth = boxDef.w;
+		int current_boxHeight = boxDef.h;
+		double current_boxDensity = boxDef.d;
+		double current_boxFriction = boxDef.f;
+		double current_boxResistution = boxDef.r;
+
+		switch (changingMode)
+		{
+		case 0: manager.SetBoxWidth(current_boxWidth + 1); manager.SetBoxHeight(current_boxHeight + 1); break;
+		case 1: manager.SetBoxWidth(current_boxWidth + 1); break;
+		case 2: manager.SetBoxHeight(current_boxHeight + 1); break;
+		case 3: manager.SetBoxDensity(current_boxDensity + 5); break;
+		case 4: manager.SetBoxFriction(current_boxFriction + 1); break;
+		case 5: manager.SetBoxResistution(current_boxResistution + 1); break;
+		default:
+			break;
+		}
+		manager.PrintBoxDefinition();
+
+	}
+	if ((key == GLFW_KEY_KP_SUBTRACT || key == GLFW_KEY_MINUS) && action == GLFW_PRESS) {
+
+		BoxDefinition boxDef = manager.GetBoxDefinition();
+
+		int current_boxWidth = boxDef.w;
+		int current_boxHeight = boxDef.h;
+		double current_boxDensity = boxDef.d;
+		double current_boxFriction = boxDef.f;
+		double current_boxResistution = boxDef.r;
+
+		switch (changingMode)
+		{
+		case 0: if (current_boxWidth > 1 && current_boxHeight > 1) { manager.SetBoxWidth(current_boxWidth - 1); manager.SetBoxHeight(current_boxHeight + 1); }else {std::cout << "(!) Reached the minimum value" << std::endl;} break;
+		case 1: if (current_boxWidth>1) {	manager.SetBoxWidth(current_boxWidth - 1); }else {std::cout << "(!) Reached the minimum value" << std::endl;} break;
+		case 2: if (current_boxHeight>1) {	manager.SetBoxHeight(current_boxHeight - 1); }else {std::cout << "(!) Reached the minimum value" << std::endl;} break;
+		case 3: if (current_boxDensity > 5) {	manager.SetBoxDensity(current_boxDensity - 5); }else {std::cout << "(!) Reached the minimum value" << std::endl;} break;
+		case 4: if (current_boxFriction > 1) { manager.SetBoxFriction(current_boxFriction - 1); }else {std::cout << "(!) Reached the minimum value" << std::endl;} break;
+		case 5: if (current_boxResistution > 1) {	manager.SetBoxResistution(current_boxResistution - 1); }else {std::cout << "(!) Reached the minimum value" << std::endl;} break;
+		default:
+			break;
+		}
+		manager.PrintBoxDefinition();
+
+	}
+	if ((key == GLFW_KEY_0 || key == GLFW_KEY_KP_0) && action == GLFW_PRESS)
+	{
+		if (changingMode == 5)
+		{
+			changingMode = 0;
+		}
+		else
+		{
+			changingMode++;
+		}
+
+		switch (changingMode)
+		{
+		case 0: std::cout << "(!) Now modifying: width and height" << std::endl; break;
+		case 1: std::cout << "(!) Now modifying: width" << std::endl; break;
+		case 2: std::cout << "(!) Now modifying: height" << std::endl; break;
+		case 3: std::cout << "(!) Now modifying: density" << std::endl; break;
+		case 4: std::cout << "(!) Now modifying: friction" << std::endl; break;
+		case 5: std::cout << "(!) Now modifying: resistution" << std::endl; break;
+		default:
+			break;
+		}
 	}
 }
+
+
 
 
 void InitBox2D()
@@ -94,7 +200,7 @@ void InitBox2D()
 	manager.SetTimeSteps(1.0f / 60.0f); // 60 FPS
 
 
-	box1 = manager.CreateBoxAtPosition(-10, 10);
+	box1 = manager.CreateBoxAtPosition(-10, 10,2,2);
 
 
 	//Cria o chão
@@ -238,7 +344,7 @@ int main(void)
 		exit(EXIT_FAILURE);
 
 	//Criando a janela
-	window = glfwCreateWindow(640, 480, "HELLO GLFW!! BYE BYE GLUT!!!", NULL, NULL);
+	window = glfwCreateWindow(wind_width, wind_height, "HELLO GLFW!! BYE BYE GLUT!!!", NULL, NULL);
 	if (!window)
 	{
 		glfwTerminate();
@@ -250,7 +356,13 @@ int main(void)
 	glfwSwapInterval(1);
 
 	//Setando a callback de teclado
-	glfwSetCursorPosCallback(window, cursorposition);
+	glfwSetCursorPosCallback(window, cursorPosCallback);
+	glfwSetInputMode(window,GLFW_CURSOR,GLFW_CURSOR_NORMAL);
+
+	glfwSetCursorEnterCallback(window, cursorEnterCallback);
+	glfwSetMouseButtonCallback(window, mouseButtonCallback);
+	glfwSetScrollCallback(window, scrollCallback);
+
 	glfwSetKeyCallback(window, key_callback);
 
 
@@ -270,6 +382,8 @@ int main(void)
 		// Limpa a janela de visualização com a cor branca
 		glClearColor(1, 1, 1, 0);
 		glClear(GL_COLOR_BUFFER_BIT);
+
+		glfwGetCursorPos(window,&xMPos,&yMPos);
 
 		//Setando a matriz de projeção, para definir o Ortho2D (câmera ortográfica 2D), respeitando o aspect ratio
 		glMatrixMode(GL_PROJECTION);
@@ -306,57 +420,23 @@ int main(void)
 	return 0;
 }
 
-b2Body *GameManager::CreateBoxAtMouse(float mouseX, float mouseY)
-{
-	std::cout << "In CreateBoxAtMouse function\nMouseX: " + to_string(mouseX) + " - " + to_string(mouseY) << std::endl;
-	b2Body *box;
-
-	double xpos, ypos;
-	//getting cursor position
-
-	//Primeiro, criamos a definição do corpo
-	b2BodyDef bodyDef;
-	bodyDef.position.Set(mouseX, mouseY);
-	bodyDef.type = b2_dynamicBody;
-
-	//Estamos usando uma forma de poligono, que pode ter até 8 vértices
-	b2PolygonShape shape;
-	shape.SetAsBox(5, 5);
-
-	//Depois, criamos uma fixture que vai conter a forma do corpo
-	b2FixtureDef fix;
-	fix.shape = &shape;
-	//Setamos outras propriedades da fixture
-	fix.density = 10.0;
-	fix.friction = 0.5;
-	fix.restitution = 0.5;
-
-	//Por fim, criamos o corpo...
-	box = world->CreateBody(&bodyDef);
-	//... e criamos a fixture do corpo 	
-	box->CreateFixture(&fix);
-
-	return box;
-
-}
-
-b2Body *GameManager::CreateBoxAtPosition(double posX, double posY)
+b2Body *GameManager::CreateBoxAtPosition(double posX, double posY, int width, int height, double density, double friction, double resistution)
 {
 	b2Body *box;
 
-	//Primeiro, criamos a definição do corpo
+
 	b2BodyDef bodyDef;
 	bodyDef.position.Set(posX, posY);
 	bodyDef.type = b2_dynamicBody;
 
-	//Estamos usando uma forma de poligono, que pode ter até 8 vértices
-	b2PolygonShape shape;
-	shape.SetAsBox(5, 5);
 
-	//Depois, criamos uma fixture que vai conter a forma do corpo
+	b2PolygonShape shape;
+	shape.SetAsBox(width, height);
+
+
 	b2FixtureDef fix;
 	fix.shape = &shape;
-	//Setamos outras propriedades da fixture
+
 	fix.density = 10.0;
 	fix.friction = 0.5;
 	fix.restitution = 0.5;
@@ -369,9 +449,63 @@ b2Body *GameManager::CreateBoxAtPosition(double posX, double posY)
 	return box;
 }
 
-void glfwSetCursorPosCallback(GLFWwindow * window, double posX, double posY)
+void GameManager::PrintBoxDefinition()
+{
+	std::cout << "=====================" << std::endl;
+	std::cout << "=  BOX DEFINITIONS  =" << std::endl;
+	std::cout << "=====================" << std::endl;
+	std::cout << "= Size: " << boxDef.w << "x" << boxDef.h << std::endl;
+	std::cout << "= Density: " << boxDef.d << std::endl;
+	std::cout << "= Friction: " << boxDef.f << std::endl;
+	std::cout << "= Resistution: " << boxDef.r << std::endl;
+	std::cout << "---------------------" << std::endl << std::endl;
+
+}
+
+void cursorPosCallback(GLFWwindow * window, double posX, double posY)
 {
 
+	//std::cout << posX << " - " << posY << std::endl;
+
+}
+
+void cursorEnterCallback(GLFWwindow * window, int entered)
+{
+	/*if (entered)
+	{
+		std::cout << "Entered Window" << std::endl;
+	}
+	else
+	{
+		std::cout << "Left Window" << std::endl;
+	}*/
+
+}
+
+void mouseButtonCallback(GLFWwindow * window, int button, int action, int mods)
+{
+	double mX = 0;
+	double mY = 0;
+
+	BoxDefinition boxDef = manager.GetBoxDefinition();
+
+	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
+	{
+		std::cout << "Left button pressed " << std::endl;
+		glfwGetCursorPos(window, &mX, &mY);
+
+		double spawnXPos = (mX - (wind_width / 2)) ;
+		double spawnYPos = (mY - (wind_height / 2)) ;
+
+		createdBodies.push_front(manager.CreateBoxAtPosition(spawnXPos / scalingFactor, -spawnYPos / scalingFactor, boxDef.w, boxDef.h, boxDef.d, boxDef.f, boxDef.r));
+	}
+
+
+}
+
+void scrollCallback(GLFWwindow * window, double xOffset, double yOffset)
+{
+	/*std::cout << xOffset << ":" << yOffset << std::endl;*/
 
 
 }
