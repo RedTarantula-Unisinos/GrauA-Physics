@@ -1,21 +1,38 @@
-## Exercícios Box2D
+# ExercÃ­cios Box2D
 
-###Instruções
-Abrir a solução dentro da pasta exFisica19 e executar o projeto;
-Caso seja necessário limpar o cenário, deve-se fechar e executar o projeto novamente
 
-###Controles
+**InstruÃ§Ãµes**
+
+Abrir a soluÃ§Ã£o dentro da pasta exFisica19 e executar o projeto;
+Caso seja necessÃ¡rio limpar o cenÃ¡rio, deve-se fechar e executar o projeto novamente
+
+
+**Controles**
+
+
 **ESC** - Sair
 
 
-**B** - Criar uma caixa com definições aleatórias na posição do mouse
-**C** - Criar uma bola com definições aleatórias na posição do mouse
-**L** - Criar uma linha com definições aleatórias na posição do mouse (A ser trabalhado)
+**B** - Criar uma caixa com definiÃ§Ãµes aleatÃ³rias na posiÃ§Ã£o do mouse
 
 
-**R** - Cria uma caixa no centro do cenário com resistution 10% maior a cada vez até alcançar 100%
+**C** - Criar uma bola com definiÃ§Ãµes aleatÃ³rias na posiÃ§Ã£o do mouse
+
+
+**L** - Criar uma linha com definiÃ§Ãµes aleatÃ³rias na posiÃ§Ã£o do mouse (A ser trabalhado)
+
+
+
+
+**R** - Cria uma caixa no centro do cenÃ¡rio com resistution 10% maior a cada vez atÃ© alcanÃ§ar 100%
+
+
 
 **T** - Cria uma rampa
-**Y** - Cria uma caixa no topo da rampa com friction 10% maior a cada vez até alcançar 100%
 
-__Exercícios 6 adiante ainda a serem feitos.__
+
+**Y** - Cria uma caixa no topo da rampa com friction 10% maior a cada vez atÃ© alcanÃ§ar 100%
+
+
+
+__ExercÃ­cios 6 adiante ainda a serem feitos.__
