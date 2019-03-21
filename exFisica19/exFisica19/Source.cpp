@@ -1,9 +1,6 @@
-#include <cstdlib>
-#include <iostream>
-#include "Render.h" //é a Render que está incluindo a glfw!
-#include <ctime>
-#include <list>
-#include <string>
+#include "JStructs.h"
+#include "RigidbodyCreation.h"
+#include "MatVet.h"
 
 using namespace std;
 
@@ -11,22 +8,6 @@ static void cursorPosCallback(GLFWwindow* window, double posX, double posY);
 void cursorEnterCallback(GLFWwindow* window, int entered);
 void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
 void scrollCallback(GLFWwindow* window, double xOffset, double yOffset);
-
-
-list<b2Body*> createdBodies;
-
-double xMPos = 0, yMPos = 0;
-int wind_width = 640;
-int wind_height = 480;
-
-struct BoxDefinition
-{
-	int w = 1;
-	int h = 1;
-	double d = 10.0;
-	double f = 1.0;
-	double r = 1.0;
-};
 
 
 class GameManager
@@ -54,62 +35,33 @@ public:
 
 	float GetYMax() { return yMax; };
 	void SetYMax(float _n) { yMax = _n; };
-
-	b2Body * CreateBoxAtPosition(double posX = 0, double posY = 0, int width = 2, int height = 2, double density = 10.0, double friction = 0.5, double resistution = 0.5);
-	b2Body * CreateCircleAtPosition(double posX, double posY, int radius, double density, double friction, double resistution);
-	b2Body * CreateLineAtPosition(double posX, double posY, int posX2, int posY2, double density, double friction, double resistution);
-
-	void SetBoxWidth(int w) { boxDef.w = w; };
-	void SetBoxHeight(int h) { boxDef.h = h; };
-	void SetBoxDensity(double d) { boxDef.d = d; };
-	void SetBoxFriction(double f) { boxDef.f = f; };
-	void SetBoxResistution(double r) { boxDef.r = r; };
-
-	BoxDefinition GetBoxDefinition() { return boxDef; }
-
-
-	void RandomizeBox(double mouseX, double mouseY);
-	void RandomizeBall(double mouseX, double mouseY);
-	void RandomizeLine(double mouseX, double mouseY);
-
-	void PrintBoxDefinition();
-
-	void DeleteAllBodies() { createdBodies.clear(); };
-	void DeleteLastBody() { createdBodies.pop_front(); };
 private:
 	float32 timesteps;
 	int32 velocityIterations, positionIterations;
 	float xMin = -40.0f, xMax = 40.0f, yMin = -40.0f, yMax = 40.0f;
-
-	BoxDefinition boxDef;
 };
 
-
-
 GameManager manager;
-
+RigidbodyCreation rbcreate;
+DebugDraw renderer;
 b2World *world;
-
-//Alguns corpos rígidos
 b2Body* ground,*wall1,*wall2,*ceiling;
 
 float scalingFactor = 6.0f;
+double xMPos = 0, yMPos = 0;
+int wind_width = 640;
+int wind_height = 480;
 
-
-//Objeto para a classe que faz o desenho das formas de colisão dos corpos rígidos
-DebugDraw renderer;
-
+int changingMode = 0;
+double ex4Res = 0;
+bool ex5CreatedRamp = false;
+double ex5Friction = 0;
 
 static void error_callback(int error, const char* description)
 {
 	fputs(description, stderr);
 }
 
-int changingMode = 0;
-double ex4Res = 0;
-bool ex5CreatedRamp = false;
-double ex5Friction = 0;
-//Callback de teclado - PADRÃO DA GLFW - alterar conforme desejar (teclas de controle do programa)
 static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
 	/*
@@ -132,21 +84,21 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 		glfwGetCursorPos(window, &mX, &mY);
 		double spawnXPos = (mX - (wind_width / 2));
 		double spawnYPos = (mY - (wind_height / 2));
-		manager.RandomizeBox(spawnXPos/scalingFactor, -spawnYPos / scalingFactor);
+		rbcreate.RandomizeBox(world, spawnXPos/scalingFactor, -spawnYPos / scalingFactor);
 	}
 	if (key == GLFW_KEY_C && action == GLFW_PRESS) // Creates random ball at mouse
 	{
 		glfwGetCursorPos(window, &mX, &mY);
 		double spawnXPos = (mX - (wind_width / 2));
 		double spawnYPos = (mY - (wind_height / 2));
-		manager.RandomizeBall(spawnXPos / scalingFactor, -spawnYPos / scalingFactor);
+		rbcreate.RandomizeBall(world, spawnXPos / scalingFactor, -spawnYPos / scalingFactor);
 	}
 	if (key == GLFW_KEY_L && action == GLFW_PRESS) // Creates random line at mouse
 	{
 		glfwGetCursorPos(window, &mX, &mY);
 		double spawnXPos = (mX - (wind_width / 2));
 		double spawnYPos = (mY - (wind_height / 2));
-		manager.RandomizeLine(spawnXPos / scalingFactor, -spawnYPos / scalingFactor);
+		rbcreate.RandomizeLine(world, spawnXPos / scalingFactor, -spawnYPos / scalingFactor);
 	}
 
 	if (key == GLFW_KEY_R && action == GLFW_PRESS) // Creates Box at the center and increases the rest. everytime until it reaches 1.0
@@ -156,7 +108,7 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 		double spawnYPos = (mY - (wind_height / 2));
 		if (ex4Res < 1)
 		{
-			manager.CreateBoxAtPosition(0,-30);
+			rbcreate.CreateBoxAtPosition(world, 0, 30, 40, -40, 10.0, .5, .5,true);
 			ex4Res++;
 		}
 	}
@@ -164,18 +116,35 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 	if (key == GLFW_KEY_T && action == GLFW_PRESS) // Creates Ramp
 	{
 		if (!ex5CreatedRamp) {
-			manager.CreateLineAtPosition(-50, 10, 40, -40, 10.0, .5, .5);
+			rbcreate.CreateLineAtPosition(world, -50, 10, 40, -40, 10.0, .5, .5);
 			ex5CreatedRamp = true;
 		}
 	}
 	if (key == GLFW_KEY_Y && action == GLFW_PRESS) // Creates Box on Ramp
 	{
 		if (ex5CreatedRamp && ex5Friction < 1) {
-			manager.CreateBoxAtPosition(-45, 12, 2, 2, 10.0, ex5Friction, 0.5);
+			rbcreate.CreateBoxAtPosition(world, -45, 12, 2, 2, 10.0, ex5Friction, 0.5,true);
 			ex5Friction += 0.1;
 			std::cout << "Friction is now: " << ex5Friction << std::endl;
 		}
 	}
+
+	if (key == GLFW_KEY_F && action == GLFW_PRESS) // Creates Box on Ramp
+	{
+
+		b2Vec2 vetorForca;
+		vetorForca = CalculaComponentesDoVetor(100000, 45);
+		b2Body * b = rbcreate.GetLastBodyCreated();
+		b->ApplyForceToCenter(vetorForca, true);
+	}
+
+	if (key == GLFW_KEY_G && action == GLFW_PRESS)
+	{
+
+	}
+
+
+
 
 	/*if (key == GLFW_KEY_DELETE && action == GLFW_PRESS)
 	{
@@ -189,7 +158,7 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 
 	if ((key == GLFW_KEY_KP_ADD || key == GLFW_KEY_EQUAL) && action == GLFW_PRESS) {
 
-		BoxDefinition boxDef = manager.GetBoxDefinition();
+		BoxDefinition boxDef = rbcreate.GetBoxDefinition();
 
 		int current_boxWidth = boxDef.w;
 		int current_boxHeight = boxDef.h;
@@ -199,21 +168,21 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 
 		switch (changingMode)
 		{
-		case 0: manager.SetBoxWidth(current_boxWidth + 1); manager.SetBoxHeight(current_boxHeight + 1); break;
-		case 1: manager.SetBoxWidth(current_boxWidth + 1); break;
-		case 2: manager.SetBoxHeight(current_boxHeight + 1); break;
-		case 3: manager.SetBoxDensity(current_boxDensity + 5); break;
-		case 4: manager.SetBoxFriction(current_boxFriction + 1); break;
-		case 5: manager.SetBoxResistution(current_boxResistution + 1); break;
+		case 0: rbcreate.SetBoxWidth(current_boxWidth + 1); rbcreate.SetBoxHeight(current_boxHeight + 1); break;
+		case 1: rbcreate.SetBoxWidth(current_boxWidth + 1); break;
+		case 2: rbcreate.SetBoxHeight(current_boxHeight + 1); break;
+		case 3: rbcreate.SetBoxDensity(current_boxDensity + 5); break;
+		case 4: rbcreate.SetBoxFriction(current_boxFriction + 1); break;
+		case 5: rbcreate.SetBoxResistution(current_boxResistution + 1); break;
 		default:
 			break;
 		}
-		manager.PrintBoxDefinition();
+		rbcreate.PrintBoxDefinition();
 
 	}
 	if ((key == GLFW_KEY_KP_SUBTRACT || key == GLFW_KEY_MINUS) && action == GLFW_PRESS) {
 
-		BoxDefinition boxDef = manager.GetBoxDefinition();
+		BoxDefinition boxDef = rbcreate.GetBoxDefinition();
 
 		int current_boxWidth = boxDef.w;
 		int current_boxHeight = boxDef.h;
@@ -223,16 +192,16 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 
 		switch (changingMode)
 		{
-		case 0: if (current_boxWidth > 1 && current_boxHeight > 1) { manager.SetBoxWidth(current_boxWidth - 1); manager.SetBoxHeight(current_boxHeight + 1); }else {std::cout << "(!) Reached the minimum value" << std::endl;} break;
-		case 1: if (current_boxWidth>1) {	manager.SetBoxWidth(current_boxWidth - 1); }else {std::cout << "(!) Reached the minimum value" << std::endl;} break;
-		case 2: if (current_boxHeight>1) {	manager.SetBoxHeight(current_boxHeight - 1); }else {std::cout << "(!) Reached the minimum value" << std::endl;} break;
-		case 3: if (current_boxDensity > 5) {	manager.SetBoxDensity(current_boxDensity - 5); }else {std::cout << "(!) Reached the minimum value" << std::endl;} break;
-		case 4: if (current_boxFriction > 1) { manager.SetBoxFriction(current_boxFriction - 1); }else {std::cout << "(!) Reached the minimum value" << std::endl;} break;
-		case 5: if (current_boxResistution > 1) {	manager.SetBoxResistution(current_boxResistution - 1); }else {std::cout << "(!) Reached the minimum value" << std::endl;} break;
+		case 0: if (current_boxWidth > 1 && current_boxHeight > 1) { rbcreate.SetBoxWidth(current_boxWidth - 1); rbcreate.SetBoxHeight(current_boxHeight + 1); }else {std::cout << "(!) Reached the minimum value" << std::endl;} break;
+		case 1: if (current_boxWidth>1) { rbcreate.SetBoxWidth(current_boxWidth - 1); }else {std::cout << "(!) Reached the minimum value" << std::endl;} break;
+		case 2: if (current_boxHeight>1) { rbcreate.SetBoxHeight(current_boxHeight - 1); }else {std::cout << "(!) Reached the minimum value" << std::endl;} break;
+		case 3: if (current_boxDensity > 5) { rbcreate.SetBoxDensity(current_boxDensity - 5); }else {std::cout << "(!) Reached the minimum value" << std::endl;} break;
+		case 4: if (current_boxFriction > 1) { rbcreate.SetBoxFriction(current_boxFriction - 1); }else {std::cout << "(!) Reached the minimum value" << std::endl;} break;
+		case 5: if (current_boxResistution > 1) { rbcreate.SetBoxResistution(current_boxResistution - 1); }else {std::cout << "(!) Reached the minimum value" << std::endl;} break;
 		default:
 			break;
 		}
-		manager.PrintBoxDefinition();
+		rbcreate.PrintBoxDefinition();
 
 	}
 	if ((key == GLFW_KEY_0 || key == GLFW_KEY_KP_0) && action == GLFW_PRESS)
@@ -259,9 +228,6 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 		}
 	}
 }
-
-
-
 
 void InitBox2D()
 {
@@ -301,13 +267,11 @@ void InitBox2D()
 
 }
 
-
 void RunBox2D()
 {
 	world->Step(manager.GetTimeSteps(), manager.GetVelocityIt(), manager.GetPositionIt());
 	world->ClearForces();
 }
-
 
 void PrintBodies()
 {
@@ -415,22 +379,17 @@ void Render()
 	}
 }
 
-// Programa Principal 
 int main(void)
 {
 	srand(time(0));
 
-	//Inicialização da janela da aplicação
 	GLFWwindow* window;
 
-	//Setando a callback de erro
 	glfwSetErrorCallback(error_callback);
 
-	//Inicializando a lib
 	if (!glfwInit())
 		exit(EXIT_FAILURE);
 
-	//Criando a janela
 	window = glfwCreateWindow(wind_width, wind_height, "HELLO GLFW!! BYE BYE GLUT!!!", NULL, NULL);
 	if (!window)
 	{
@@ -438,11 +397,9 @@ int main(void)
 		exit(EXIT_FAILURE);
 	}
 
-	//Colocando a janela criada como sendo o contexto atual
 	glfwMakeContextCurrent(window);
 	glfwSwapInterval(1);
 
-	//Setando a callback de teclado
 	glfwSetCursorPosCallback(window, cursorPosCallback);
 	glfwSetInputMode(window,GLFW_CURSOR,GLFW_CURSOR_NORMAL);
 
@@ -456,23 +413,19 @@ int main(void)
 	InitBox2D();
 
 
-	while (!glfwWindowShouldClose(window)) //loop da aplicação :)
+	while (!glfwWindowShouldClose(window))
 	{
 		float ratio;
 		int width, height;
 
-		//aqui recupera o tamanho atual da janela, para correção do aspect ratio mais tarde
 		glfwGetFramebufferSize(window, &width, &height);
-		//setando a viewport da OpenGL, para ocupar toda a janela da aplicação
 		glViewport(0, 0, width, height);
 
-		// Limpa a janela de visualização com a cor branca
 		glClearColor(1, 1, 1, 0);
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		glfwGetCursorPos(window,&xMPos,&yMPos);
 
-		//Setando a matriz de projeção, para definir o Ortho2D (câmera ortográfica 2D), respeitando o aspect ratio
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();
 
@@ -487,11 +440,9 @@ int main(void)
 			gluOrtho2D(manager.GetXMin(), manager.GetXMax(), manager.GetYMin()*ratio, manager.GetYMax()*ratio);
 		}
 
-		//Setando a matriz de modelo, para mandar desenhar as primitivas
 		glMatrixMode(GL_MODELVIEW);
 		glLoadIdentity();
 
-		//Mandando simular e desenhar 	
 		RunBox2D();
 		Render();
 
@@ -505,107 +456,6 @@ int main(void)
 	exit(EXIT_SUCCESS);
 
 	return 0;
-}
-
-b2Body *GameManager::CreateBoxAtPosition(double posX, double posY, int width, int height, double density, double friction, double resistution)
-{
-	std::cout << "trying to create box at " << posX << "x" << posY << std::endl;
-
-	b2Body *box;
-
-
-	b2BodyDef bodyDef;
-	bodyDef.position.Set(posX, posY);
-	bodyDef.type = b2_dynamicBody;
-
-
-	b2PolygonShape shape;
-	shape.SetAsBox(width, height);
-
-
-	b2FixtureDef fix;
-	fix.shape = &shape;
-
-	fix.density = 10.0;
-	fix.friction = 0.5;
-	fix.restitution = 0.5;
-
-	//Por fim, criamos o corpo...
-	box = world->CreateBody(&bodyDef);
-	//... e criamos a fixture do corpo 	
-	box->CreateFixture(&fix);
-
-	return box;
-}
-b2Body *GameManager::CreateCircleAtPosition(double posX, double posY, int radius, double density, double friction, double resistution)
-{
-	std::cout << "trying to create circle at " << posX << "x" << posY << std::endl;
-
-	b2Body *circle;
-
-
-	b2BodyDef bodyDef;
-	bodyDef.position.Set(posX, posY);
-	bodyDef.type = b2_dynamicBody;
-
-	b2CircleShape shape;
-	shape.m_radius = radius;
-
-		
-
-
-	b2FixtureDef fix;
-	fix.shape = &shape;
-
-	fix.density = 10.0;
-	fix.friction = 0.5;
-	fix.restitution = 0.5;
-
-	//Por fim, criamos o corpo...
-	circle = world->CreateBody(&bodyDef);
-	//... e criamos a fixture do corpo 	
-	circle->CreateFixture(&fix);
-
-	return circle;
-}
-b2Body *GameManager::CreateLineAtPosition(double posX, double posY, int posX2, int posY2, double density, double friction, double resistution)
-{
-
-	std::cout << "trying to create line at " << posX << "x" << posY << std::endl;
-
-	b2Body *line;
-
-
-	b2BodyDef bd;
-	line = world->CreateBody(&bd);
-	bd.type = b2_dynamicBody;
-
-	b2EdgeShape shape;
-
-	shape.Set(b2Vec2(posX, posY), b2Vec2(posX2, posY2));
-
-	b2FixtureDef fix;
-	fix.shape = &shape;
-	//Setamos outras propriedades da fixture
-	fix.density = density;
-	fix.friction = friction;
-	fix.restitution = resistution;
-
-	line->CreateFixture(&shape,density);
-
-	return line;
-}
-void GameManager::PrintBoxDefinition()
-{
-	std::cout << "=====================" << std::endl;
-	std::cout << "=  BOX DEFINITIONS  =" << std::endl;
-	std::cout << "=====================" << std::endl;
-	std::cout << "= Size: " << boxDef.w << "x" << boxDef.h << std::endl;
-	std::cout << "= Density: " << boxDef.d << std::endl;
-	std::cout << "= Friction: " << boxDef.f << std::endl;
-	std::cout << "= Resistution: " << boxDef.r << std::endl;
-	std::cout << "---------------------" << std::endl << std::endl;
-
 }
 
 void cursorPosCallback(GLFWwindow * window, double posX, double posY)
@@ -633,7 +483,7 @@ void mouseButtonCallback(GLFWwindow * window, int button, int action, int mods)
 	double mX = 0;
 	double mY = 0;
 
-	BoxDefinition boxDef = manager.GetBoxDefinition();
+	BoxDefinition boxDef = rbcreate.GetBoxDefinition();
 
 	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
 	{
@@ -643,7 +493,7 @@ void mouseButtonCallback(GLFWwindow * window, int button, int action, int mods)
 		double spawnXPos = (mX - (wind_width / 2)) ;
 		double spawnYPos = (mY - (wind_height / 2)) ;
 
-		createdBodies.push_front(manager.CreateBoxAtPosition(spawnXPos / scalingFactor, -spawnYPos / scalingFactor, boxDef.w, boxDef.h, boxDef.d, boxDef.f, boxDef.r));
+		rbcreate.CreateBoxAtPosition(world, spawnXPos / scalingFactor, -spawnYPos / scalingFactor, boxDef.w, boxDef.h, boxDef.d, boxDef.f, boxDef.r,true);
 	}
 
 
@@ -654,44 +504,4 @@ void scrollCallback(GLFWwindow * window, double xOffset, double yOffset)
 	/*std::cout << xOffset << ":" << yOffset << std::endl;*/
 
 
-}
-
-void GameManager::RandomizeBox(double mouseX, double mouseY)
-{
-	std::cout << "trying to create random box" << std::endl;
-
-	int rand_size = 1 + rand() % 12;
-	double rand_density = 1 + rand() % 1000;
-	double rand_friction = (1 + rand() % 10) / 10;
-	double rand_resistution = (1 + rand() % 10) / 10;
-
-	createdBodies.push_front(manager.CreateBoxAtPosition(mouseX, mouseY, rand_size, rand_size, rand_density, rand_friction, rand_resistution));
-}
-
-void GameManager::RandomizeBall(double mouseX, double mouseY)
-{
-	std::cout << "trying to create randoom ball" << std::endl;
-
-	int rand_radius = 1 + rand() % 12;
-	double rand_density = 1 + rand() % 1000;
-	double rand_friction = (1 + rand() % 10) / 10;
-	double rand_resistution = (1 + rand() % 10) / 10;
-
-	createdBodies.push_front(manager.CreateCircleAtPosition(mouseX, mouseY, rand_radius, rand_density, rand_friction, rand_resistution));
-}
-
-void GameManager::RandomizeLine(double mouseX, double mouseY)
-{
-	std::cout << "trying to create random line" << std::endl;
-
-	double distance = 2 + rand() % 30;
-
-	double rand_x = rand() % 30 - distance;
-	double rand_y = rand() % 30 - distance;
-
-	double rand_density = 1 + rand() % 1000;
-	double rand_friction = (1 + rand() % 10) / 10;
-	double rand_resistution = (1 + rand() % 10) / 10;
-
-	createdBodies.push_front(manager.CreateLineAtPosition(mouseX, mouseY, rand_x, rand_y, rand_density, rand_friction, rand_resistution));
 }

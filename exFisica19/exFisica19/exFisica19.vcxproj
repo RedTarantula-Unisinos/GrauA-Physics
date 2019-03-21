@@ -120,10 +120,14 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Render.cpp" />
+    <ClCompile Include="RigidbodyCreation.cpp" />
     <ClCompile Include="Source.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="JStructs.h" />
+    <ClInclude Include="MatVet.h" />
     <ClInclude Include="Render.h" />
+    <ClInclude Include="RigidbodyCreation.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
