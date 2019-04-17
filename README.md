@@ -1,38 +1,24 @@
-# Exercícios Box2D
+# Physics Class - Moon Lander
 
 
-**Instruções**
+##Controls
 
-Abrir a solução dentro da pasta exFisica19 e executar o projeto;
-Caso seja necessário limpar o cenário, deve-se fechar e executar o projeto novamente
-
-
-**Controles**
+**W** - Move Upwards
 
 
-**ESC** - Sair
+**A** - Move Leftwards
 
 
-**B** - Criar uma caixa com definições aleatórias na posição do mouse
+**S** - Move Downwards
 
 
-**C** - Criar uma bola com definições aleatórias na posição do mouse
+**D** - Move Rightwards
 
+##To-Do
 
-**L** - Criar uma linha com definições aleatórias na posição do mouse (A ser trabalhado)
+- [x] Ship's Control
+- [ ] Fuel draining
+- [ ] Terrain
+- [ ] Collision
+- [ ] Game Over
 
-
-
-
-**R** - Cria uma caixa no centro do cenário com resistution 10% maior a cada vez até alcançar 100%
-
-
-
-**T** - Cria uma rampa
-
-
-**Y** - Cria uma caixa no topo da rampa com friction 10% maior a cada vez até alcançar 100%
-
-
-
-__Exercícios 6 adiante ainda a serem feitos.__
