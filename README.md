@@ -1,20 +1,12 @@
 # Physics Class - Moon Lander
-
-
-##Controls
-
+---
+## Controls
 **W** - Move Upwards
-
-
 **A** - Move Leftwards
-
-
 **S** - Move Downwards
-
-
 **D** - Move Rightwards
 
-##To-Do
+## To-Do
 
 - [x] Ship's Control
 - [ ] Fuel draining
