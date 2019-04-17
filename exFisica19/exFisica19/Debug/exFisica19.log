@@ -1,4 +1,0 @@
-﻿  Source.cpp
-c:\users\joaopedrosr\desktop\rep\physicsbox2d\exfisica19\exfisica19\source.cpp(379): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
-  exFisica19.vcxproj -> C:\Users\joaopedrosr\Desktop\Rep\PhysicsBox2D\exFisica19\Debug\exFisica19.exe
-  exFisica19.vcxproj -> C:\Users\joaopedrosr\Desktop\Rep\PhysicsBox2D\exFisica19\Debug\exFisica19.pdb (Partial PDB)
