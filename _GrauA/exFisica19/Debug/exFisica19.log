@@ -1,0 +1,7 @@
+﻿  Source.cpp
+c:\users\joaopedrosr\desktop\rep\graua-physics\_graua\exfisica19\spaceship.h(34): warning C4244: 'argument': conversion from 'double' to 'float32', possible loss of data
+c:\users\joaopedrosr\desktop\rep\graua-physics\_graua\exfisica19\platforms.h(31): warning C4244: 'argument': conversion from 'double' to 'float32', possible loss of data
+c:\users\joaopedrosr\desktop\rep\graua-physics\_graua\exfisica19\source.cpp(55): warning C4305: 'initializing': truncation from 'double' to 'float'
+c:\users\joaopedrosr\desktop\rep\graua-physics\_graua\exfisica19\source.cpp(239): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+  exFisica19.vcxproj -> C:\Users\joaopedrosr\Desktop\Rep\GrauA-Physics\_GrauA\Debug\exFisica19.exe
+  exFisica19.vcxproj -> C:\Users\joaopedrosr\Desktop\Rep\GrauA-Physics\_GrauA\Debug\exFisica19.pdb (Partial PDB)

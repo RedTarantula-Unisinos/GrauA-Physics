@@ -18,7 +18,6 @@ void Spaceship::SpawnShip(b2World* world, double _x, double _y)
 
 	fuel = 1000;
 	alive = true;
-	rotation = 0;
 
 
 	b2Body *box;

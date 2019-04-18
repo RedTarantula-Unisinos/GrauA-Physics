@@ -20,16 +20,23 @@ public:
 	void DrainFuel(int amount) { fuel -= amount; };
 
 	int GetShipFuel();
+	float GetAngle()
+	{		
+		float a = body->GetAngle();
+		std::cout << "Got Angle: " << a << std::endl;
+		return a;
+	};
 	
 	void DestroyShip();
 
 	b2Body * GetBody() { return body; }
 
+	void ShipDecelerate() { body->SetAngularVelocity(body->GetAngularVelocity()*.9); }
+
 private:
 	double x, y;
 	int fuel;
 	bool alive;
-	float rotation;
 	b2Body* body;
 };
 
