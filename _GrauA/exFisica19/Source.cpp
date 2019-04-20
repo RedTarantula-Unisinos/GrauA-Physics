@@ -4,6 +4,7 @@
 #include "Spaceship.h"
 #include "Manager.h"
 #include "Platforms.h"
+#include <GL/glu.h>
 
 using namespace std;
 
@@ -27,6 +28,7 @@ double ex4Res = 0;
 bool ex5CreatedRamp = false;
 double ex5Friction = 0;
 
+
 static void error_callback(int error, const char* description)
 {
 	fputs(description, stderr);
@@ -34,25 +36,6 @@ static void error_callback(int error, const char* description)
 
 static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
-	/*
-	0 - Width and Height
-	1- Width
-	2- Height
-	3- Density
-	4- Friction
-	5 - Resistution
-	*/
-
-	double mX = 0;
-	double mY = 0;
-
-	b2Vec2 force;
-	b2Body * shipBody = playerShip.GetBody();
-
-	b2Vec2 localP, globalP;
-
-	const float forceMagnitude = 800;
-	const float magnitudeDivide = 1.2;
 
 	float angle = RadianosParaGraus(playerShip.GetAngle());
 
@@ -61,38 +44,22 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 
 	if (key == GLFW_KEY_W && action == GLFW_REPEAT) // Applies force upward
 	{
-		localP = b2Vec2(0, 0);
-		globalP = playerShip.GetBody()->GetWorldPoint(localP);
-		force = CalculaComponentesDoVetor(forceMagnitude, angle+90);
-		playerShip.GetBody()->ApplyForce(force, globalP, true);
-		std::cout << "Pulse Angle: " << angle+90 << std::endl;
+		playerShip.ShipMoveUp();
 	}
 
 	if (key == GLFW_KEY_A && action == GLFW_REPEAT) // Applies force leftward
 	{
-		localP = b2Vec2(-1, 2);
-		globalP = playerShip.GetBody()->GetWorldPoint(localP);
-		force = CalculaComponentesDoVetor(forceMagnitude/magnitudeDivide, angle+180);
-		playerShip.GetBody()->ApplyForce(force, globalP, true);
-		std::cout << "Pulse Angle: " << angle+180 << std::endl;
+		playerShip.ShipRotateAntiClockwise();
 	}
 
 	if (key == GLFW_KEY_S && action == GLFW_REPEAT) // Applies force downward
 	{
-		localP = b2Vec2(0, 0);
-		globalP = playerShip.GetBody()->GetWorldPoint(localP);
-		force = CalculaComponentesDoVetor(forceMagnitude, angle+270);
-		playerShip.GetBody()->ApplyForce(force, globalP, true);
-		std::cout << "Pulse Angle: " << angle+270 << std::endl;
+		playerShip.ShipMoveDown();
 	}
 
 	if (key == GLFW_KEY_D && action == GLFW_REPEAT) // Applies force rightward
 	{
-		localP = b2Vec2(1, 2);
-		globalP = playerShip.GetBody()->GetWorldPoint(localP);
-		force = CalculaComponentesDoVetor(forceMagnitude/magnitudeDivide, angle);
-		playerShip.GetBody()->ApplyForce(force, globalP, true);
-		std::cout << "Pulse Angle: " << angle << std::endl;
+		playerShip.ShipMoveDown();
 	}
 	if (key == GLFW_KEY_SPACE && action == GLFW_REPEAT)
 	{
@@ -134,6 +101,8 @@ void InitBox2D()
 void InitGameStuff()
 {
 	playerShip.SpawnShip(world, 0, 0); // Spawns the spaceship at the center
+	playerShip.SetForceMagnitude(800);
+	playerShip.SetForceRotationCompensation(.5);
 	platform1.SpawnPlatform(world, 20, 20, 5);
 }
 

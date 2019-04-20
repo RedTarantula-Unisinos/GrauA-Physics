@@ -1,6 +1,6 @@
 #include "Render.h"
 #include "JStructs.h"
-
+#include "MatVet.h"
 #include <list>
 #include <cstdlib>
 #include <iostream>
@@ -20,21 +20,26 @@ public:
 	void DrainFuel(int amount) { fuel -= amount; };
 
 	int GetShipFuel();
-	float GetAngle()
-	{		
-		float a = body->GetAngle();
-		std::cout << "Got Angle: " << a << std::endl;
-		return a;
-	};
+	float GetAngle();
 	
 	void DestroyShip();
 
 	b2Body * GetBody() { return body; }
 
-	void ShipDecelerate() { body->SetAngularVelocity(body->GetAngularVelocity()*.9); }
+	void ShipDecelerate();
+	void ShipMoveUp();
+	void ShipMoveDown();
+	void ShipRotateClockwise();
+	void ShipRotateAntiClockwise();
+
+	b2Vec2 GetGlobalPoint(b2Vec2 globalpos) { body->GetWorldPoint(globalpos) ;};
+
+	void SetForceMagnitude(float magnitude) { forceMagnitude = magnitude; };
+	void SetForceRotationCompensation(float compensation) { forceRotationCompensation = compensation; };
 
 private:
 	double x, y;
+	float forceMagnitude, forceRotationCompensation;
 	int fuel;
 	bool alive;
 	b2Body* body;

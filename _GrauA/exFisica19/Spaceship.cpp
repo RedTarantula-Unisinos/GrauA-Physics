@@ -51,6 +51,55 @@ int Spaceship::GetShipFuel()
 	return 0;
 }
 
+float Spaceship::GetAngle()
+{
+	return RadianosParaGraus(body->GetAngle());;
+};
+
 void Spaceship::DestroyShip()
 {
+}
+
+void Spaceship::ShipDecelerate()
+{
+	b2Vec2 velocityLinear = body->GetLinearVelocity();
+	velocityLinear.x *= .9; velocityLinear.y *= .9;
+	body->SetLinearVelocity(velocityLinear);
+
+	float32 velocityAngular = body->GetAngularVelocity();
+	velocityAngular *= .9;
+	body->SetAngularVelocity(velocityAngular);
+}
+
+void Spaceship::ShipMoveUp() // W
+{
+	b2Vec2 localP = b2Vec2(0, 0);
+	b2Vec2 globalP = body->GetWorldPoint(localP);
+	b2Vec2 force = CalculaComponentesDoVetor(forceMagnitude, GetAngle() + 90);
+	body->ApplyForce(force, globalP, true);
+
+}
+
+void Spaceship::ShipMoveDown() // S
+{
+	b2Vec2 localP = b2Vec2(0, 0);
+	b2Vec2 globalP = body->GetWorldPoint(localP);
+	b2Vec2 force = CalculaComponentesDoVetor(forceMagnitude, GetAngle() + 270);
+	body->ApplyForce(force, globalP, true);
+}
+
+void Spaceship::ShipRotateClockwise() // D
+{
+	b2Vec2 localP = b2Vec2(1, 2);
+	b2Vec2 globalP = body->GetWorldPoint(localP);
+	b2Vec2 force = CalculaComponentesDoVetor(forceMagnitude*forceRotationCompensation, GetAngle());
+	body->ApplyForce(force, globalP, true);
+}
+
+void Spaceship::ShipRotateAntiClockwise() // A
+{
+	b2Vec2 localP = b2Vec2(-1, 2);
+	b2Vec2 globalP = body->GetWorldPoint(localP);
+	b2Vec2 force = CalculaComponentesDoVetor(forceMagnitude*forceRotationCompensation, GetAngle() + 180);
+	body->ApplyForce(force, globalP, true);
 }
