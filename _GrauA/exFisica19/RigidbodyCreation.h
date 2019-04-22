@@ -1,13 +1,9 @@
-#include "Render.h"
 #include "JStructs.h"
 
 #include <list>
-#include <cstdlib>
 #include <iostream>
-#include <ctime>
 #include <string>
 #include <Box2D/Box2D.h>
-#include <vector>
 
 #pragma once
 

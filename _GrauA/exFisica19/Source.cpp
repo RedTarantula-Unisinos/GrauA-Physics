@@ -1,11 +1,9 @@
 #include "JStructs.h"
 #include "RigidbodyCreation.h"
-#include "MatVet.h"
-#include "Spaceship.h"
 #include "Manager.h"
-#include "Platforms.h"
 #include <GL/glu.h>
-
+#include "Shenanigans.h"
+#include "ContactListener.h"
 using namespace std;
 
 Manager manager;
@@ -59,7 +57,7 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 
 	if (key == GLFW_KEY_D && action == GLFW_REPEAT) // Applies force rightward
 	{
-		playerShip.ShipMoveDown();
+		playerShip.ShipRotateClockwise();
 	}
 	if (key == GLFW_KEY_SPACE && action == GLFW_REPEAT)
 	{
@@ -70,10 +68,11 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 
 void InitBox2D()
 {
-
 	b2Vec2 gravity(0.0f, -1.62f);
 
 	world = new b2World(gravity);
+
+	world->SetContactListener(new ContactListener());
 
 	manager.SetVelocityIt(10);
 	manager.SetPositionIt(8);
@@ -103,7 +102,8 @@ void InitGameStuff()
 	playerShip.SpawnShip(world, 0, 0); // Spawns the spaceship at the center
 	playerShip.SetForceMagnitude(800);
 	playerShip.SetForceRotationCompensation(.5);
-	platform1.SpawnPlatform(world, 20, 20, 5);
+	platform1.SpawnPlatform(world, 20, -35, 5);
+	platform1.SetMultiplier(1);
 }
 
 void RunBox2D()

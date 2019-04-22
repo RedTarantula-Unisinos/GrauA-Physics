@@ -24,7 +24,7 @@
 #include <Box2D/Box2D.h>
 
 struct b2AABB;
-
+#pragma once
 // This class implements debug drawing callbacks that are invoked
 // inside b2World::Step.
 class DebugDraw : public b2Draw

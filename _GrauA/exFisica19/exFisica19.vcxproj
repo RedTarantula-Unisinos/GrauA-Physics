@@ -85,6 +85,7 @@
     <Link>
       <AdditionalLibraryDirectories>../../GLFW-3.1.2-lib/lib;../../Box2D-lib/lib;</AdditionalLibraryDirectories>
       <AdditionalDependencies>Box2D.lib;glfw3.lib;opengl32.lib;glu32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <FullProgramDatabaseFile>true</FullProgramDatabaseFile>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -115,6 +116,8 @@
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalLibraryDirectories>../../GLFW-3.1.2-lib/lib;../../Box2D-lib/lib;</AdditionalLibraryDirectories>
       <AdditionalDependencies>Box2D.lib;glfw3.lib;opengl32.lib;glu32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <GenerateDebugInformation>DebugFastLink</GenerateDebugInformation>
+      <FullProgramDatabaseFile>true</FullProgramDatabaseFile>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -140,20 +143,16 @@
     <ClCompile Include="RigidbodyCreation.cpp" />
     <ClCompile Include="Source.cpp" />
     <ClCompile Include="Spaceship.cpp" />
-    <ClCompile Include="TextHandler.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ContactListener.h" />
     <ClInclude Include="JStructs.h" />
     <ClInclude Include="Manager.h" />
-    <ClInclude Include="MatVet.h" />
     <ClInclude Include="Platforms.h" />
-    <ClInclude Include="ProjectIncludes.h" />
     <ClInclude Include="Render.h" />
     <ClInclude Include="RigidbodyCreation.h" />
-    <ClInclude Include="RotinasAuxiliares.h" />
+    <ClInclude Include="Shenanigans.h" />
     <ClInclude Include="Spaceship.h" />
-    <ClInclude Include="TextHandler.h" />
-    <ClInclude Include="TextStuff.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

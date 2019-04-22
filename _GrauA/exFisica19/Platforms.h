@@ -34,7 +34,7 @@ public:
 		fix.shape = &shape;
 		fix.density = 1;
 
-		line->CreateFixture(&shape,1);
+		line->CreateFixture(&shape,1)->SetUserData(this);
 
 		return line;
 	};
@@ -44,10 +44,18 @@ public:
 	double GetXmax() { return x+length; }
 	double GetLength() { return length; }
 
+
+	void startContact() { contacting = true; }
+	
+	void SetMultiplier(int m) { multiplier = m; };
+	int GetMultiplier() { return multiplier; std::cout << "Got multiplier" << std::endl; };
+
 private:
 	double x, y;
 	double length;
 	b2Body * body;
+	bool contacting;
+	int multiplier;
 
 };
 

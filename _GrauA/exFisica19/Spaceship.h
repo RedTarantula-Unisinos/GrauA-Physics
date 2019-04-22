@@ -1,13 +1,4 @@
-#include "Render.h"
-#include "JStructs.h"
-#include "MatVet.h"
-#include <list>
-#include <cstdlib>
-#include <iostream>
-#include <ctime>
-#include <string>
 #include <Box2D/Box2D.h>
-#include <vector>
 
 #pragma once
 class Spaceship
@@ -36,6 +27,14 @@ public:
 
 	void SetForceMagnitude(float magnitude) { forceMagnitude = magnitude; };
 	void SetForceRotationCompensation(float compensation) { forceRotationCompensation = compensation; };
+
+	b2Vec2 CalculaComponentesDoVetor(float magnitude, float angulo);
+
+	float GrausParaRadianos(float angulo) {return angulo*b2_pi / 180;};
+	float RadianosParaGraus(float angle) {return angle * 180 / b2_pi;};
+
+	bool CheckShipWithPlatform(int multiplier);
+
 
 private:
 	double x, y;

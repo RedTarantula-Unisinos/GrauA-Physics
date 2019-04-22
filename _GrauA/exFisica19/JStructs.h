@@ -1,13 +1,4 @@
 #pragma once
-#include "Render.h"
-
-#include <Box2D/Box2D.h>
-#include <GLFW/glfw3.h>
-#include <list>
-#include <cstdlib>
-#include <iostream>
-#include <ctime>
-#include <string>
 
 struct BoxDefinition
 {

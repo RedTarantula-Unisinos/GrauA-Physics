@@ -30,9 +30,6 @@
     <ClCompile Include="Platforms.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="TextHandler.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Render.h">
@@ -44,12 +41,6 @@
     <ClInclude Include="JStructs.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="MatVet.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="RotinasAuxiliares.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Spaceship.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -59,13 +50,10 @@
     <ClInclude Include="Platforms.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="TextStuff.h">
+    <ClInclude Include="Shenanigans.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="TextHandler.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ProjectIncludes.h">
+    <ClInclude Include="ContactListener.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

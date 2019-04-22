@@ -6,7 +6,6 @@ Spaceship::Spaceship()
 {
 }
 
-
 Spaceship::~Spaceship()
 {
 }
@@ -40,7 +39,7 @@ void Spaceship::SpawnShip(b2World* world, double _x, double _y)
 	fix.restitution = 0.5;
 
 	box = world->CreateBody(&bodyDef);
-	box->CreateFixture(&fix);
+	box->CreateFixture(&fix)->SetUserData(this);
 
 	body = box;
 
@@ -102,4 +101,14 @@ void Spaceship::ShipRotateAntiClockwise() // A
 	b2Vec2 globalP = body->GetWorldPoint(localP);
 	b2Vec2 force = CalculaComponentesDoVetor(forceMagnitude*forceRotationCompensation, GetAngle() + 180);
 	body->ApplyForce(force, globalP, true);
+}
+
+b2Vec2 Spaceship::CalculaComponentesDoVetor(float magnitude, float angulo)
+{
+	float v = magnitude;
+	float angulorad = GrausParaRadianos(angulo);
+	float vx = v*cos(angulorad);
+	float vy = v*sin(angulorad);
+	b2Vec2 vec(vx, vy);
+	return vec;
 }
