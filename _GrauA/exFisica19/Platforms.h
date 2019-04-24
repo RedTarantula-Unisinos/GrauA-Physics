@@ -13,7 +13,7 @@ class Platforms
 public:
 	Platforms();
 	~Platforms();
-	b2Body * SpawnPlatform(b2World * world, double _x, double _y, double _length)
+	b2Body * SpawnPlatform(b2World * world, double _x, double _y, double _length, int _multiplier)
 	{
 		x = _x - length / 2;
 		y = _y;
@@ -34,9 +34,13 @@ public:
 		fix.shape = &shape;
 		fix.density = 1;
 
-		line->CreateFixture(&shape,1)->SetUserData(this);
+		line->CreateFixture(&shape,1);
+		body = line;
+		body->SetUserData(this);
 
-		return line;
+		multiplier = _multiplier;
+
+		return body;
 	};
 
 	double GetXmin() { return x; }
@@ -44,11 +48,11 @@ public:
 	double GetXmax() { return x+length; }
 	double GetLength() { return length; }
 
+	b2Body* GetBody() { return body; };
 
 	void startContact() { contacting = true; }
 	
-	void SetMultiplier(int m) { multiplier = m; };
-	int GetMultiplier() { return multiplier; std::cout << "Got multiplier" << std::endl; };
+	int GetMultiplier() { return multiplier; };
 
 private:
 	double x, y;

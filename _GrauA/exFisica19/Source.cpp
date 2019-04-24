@@ -9,7 +9,7 @@ using namespace std;
 Manager manager;
 
 Spaceship playerShip;
-Platforms platform1;
+Platforms platform1, platform2, platform3;
 
 RigidbodyCreation rbcreate;
 DebugDraw renderer;
@@ -63,6 +63,10 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 	{
 		playerShip.ShipDecelerate();
 	}
+	if (key == GLFW_KEY_I && action == GLFW_PRESS)
+	{
+		playerShip.PrintShipStats();
+	}
 
 }
 
@@ -102,8 +106,9 @@ void InitGameStuff()
 	playerShip.SpawnShip(world, 0, 0); // Spawns the spaceship at the center
 	playerShip.SetForceMagnitude(800);
 	playerShip.SetForceRotationCompensation(.5);
-	platform1.SpawnPlatform(world, 20, -35, 5);
-	platform1.SetMultiplier(1);
+	platform1.SpawnPlatform(world, 20, -39, 5, 5);
+	platform2.SpawnPlatform(world, -20, -39, 5, 2);
+	platform3.SpawnPlatform(world, -33, -39, 5, 1);
 }
 
 void RunBox2D()

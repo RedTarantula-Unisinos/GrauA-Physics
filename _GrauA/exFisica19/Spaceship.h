@@ -1,4 +1,7 @@
 #include <Box2D/Box2D.h>
+#include <iostream>
+#include <cmath>
+#include <string>
 
 #pragma once
 class Spaceship
@@ -8,9 +11,9 @@ public:
 	~Spaceship();
 
 	void SpawnShip(b2World* world, double _x, double _y); // Creates the spaceship
-	void DrainFuel(int amount) { fuel -= amount; };
+	void DrainFuel(int amount);
 
-	int GetShipFuel();
+	int GetShipFuel() { return fuel; };
 	float GetAngle();
 	
 	void DestroyShip();
@@ -33,14 +36,23 @@ public:
 	float GrausParaRadianos(float angulo) {return angulo*b2_pi / 180;};
 	float RadianosParaGraus(float angle) {return angle * 180 / b2_pi;};
 
-	bool CheckShipWithPlatform(int multiplier);
+	void CheckShipWithPlatform(int multiplier);
+	float GetSpeed();
 
+	double FixAngle(double ang);
+
+	void Die() { if (!dead) { PrintWarning("You died"); } dead = true; };
+	bool GetDead() { return dead; };
+
+	void PrintShipStats();
+	void PrintWarning(std::string warning);
 
 private:
 	double x, y;
 	float forceMagnitude, forceRotationCompensation;
-	int fuel;
-	bool alive;
+	int fuel,maxfuel;
+	bool dead;
+	bool fuelWarning50, fuelWarning25, fuelWarning0;
 	b2Body* body;
 };
 
