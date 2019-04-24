@@ -5,6 +5,8 @@
 **A** - Move Leftwards
 **S** - Move Downwards
 **D** - Move Rightwards
+**I** - Print Ship's Info
+**SPACE** - Break
 
 ## To-Do
 
