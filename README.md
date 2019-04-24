@@ -9,8 +9,8 @@
 ## To-Do
 
 - [x] Ship's Control
-- [ ] Fuel draining
+- [x] Fuel draining
 - [ ] Terrain
-- [ ] Collision
-- [ ] Game Over
+- [x] Collision
+- [x] Game Over
 
