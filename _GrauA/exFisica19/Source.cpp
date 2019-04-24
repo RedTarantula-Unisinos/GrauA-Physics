@@ -4,6 +4,7 @@
 #include <GL/glu.h>
 #include "Shenanigans.h"
 #include "ContactListener.h"
+
 using namespace std;
 
 Manager manager;
@@ -21,10 +22,6 @@ double xMPos = 0, yMPos = 0;
 int wind_width = 640;
 int wind_height = 480;
 
-int changingMode = 0;
-double ex4Res = 0;
-bool ex5CreatedRamp = false;
-double ex5Friction = 0;
 
 
 static void error_callback(int error, const char* description)
@@ -59,11 +56,11 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 	{
 		playerShip.ShipRotateClockwise();
 	}
-	if (key == GLFW_KEY_SPACE && action == GLFW_REPEAT)
+	if (key == GLFW_KEY_SPACE && action == GLFW_REPEAT) // Decelerates
 	{
 		playerShip.ShipDecelerate();
 	}
-	if (key == GLFW_KEY_I && action == GLFW_PRESS)
+	if (key == GLFW_KEY_I && action == GLFW_PRESS) // Prints ship's info to console
 	{
 		playerShip.PrintShipStats();
 	}
@@ -106,9 +103,9 @@ void InitGameStuff()
 	playerShip.SpawnShip(world, 0, 0); // Spawns the spaceship at the center
 	playerShip.SetForceMagnitude(800);
 	playerShip.SetForceRotationCompensation(.5);
-	platform1.SpawnPlatform(world, 20, -39, 5, 5);
-	platform2.SpawnPlatform(world, -20, -39, 5, 2);
-	platform3.SpawnPlatform(world, -33, -39, 5, 1);
+	platform1.SpawnPlatform(world, 20, -39, 4, 5); // Spawns a platform
+	platform2.SpawnPlatform(world, -10, -39, 7, 2); // Spawns a platform
+	platform3.SpawnPlatform(world, -35, -39, 10, 1); // Spawns a platform
 }
 
 void RunBox2D()
@@ -196,16 +193,32 @@ void Render()
 	glPointSize(5);
 	glLineWidth(3);
 
-	b2Color color;
-	color.r = 1.0;
-	color.g = 0.0;
-	color.b = 0.0;
+	b2Color colorPlatforms;
+	colorPlatforms.r = 0.0;
+	colorPlatforms.g = 0.5;
+	colorPlatforms.b = 0.0;
 
-	//PERCORRE A LISTA DE CORPOS RÍGIDOS DO MUNDO E CHAMA A ROTINA DE DESENHO PARA A LISTA DE FIXTURES DE CADA UM
-	for (b = world->GetBodyList(); b; b = b->GetNext())
-	{
-		DrawBody(b, color);
-	}
+	b2Color colorShip;
+	colorShip.r = 1.0;
+	colorShip.g = 0.0;
+	colorShip.b = 0.0;
+
+	b2Color colorScene;
+	colorScene.r = 0.2;
+	colorScene.g = 0.2;
+	colorScene.b = 0.2;
+
+	DrawBody(platform1.GetBody(), colorPlatforms);
+	DrawBody(platform2.GetBody(), colorPlatforms);
+	DrawBody(platform3.GetBody(), colorPlatforms);
+
+	DrawBody(playerShip.GetBody(), colorShip);
+
+	DrawBody(wall1, colorScene);
+	DrawBody(wall2, colorScene);
+	DrawBody(ceiling, colorScene);
+	DrawBody(ground, colorScene);
+
 }
 
 int main(void)

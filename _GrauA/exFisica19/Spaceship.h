@@ -11,48 +11,46 @@ public:
 	~Spaceship();
 
 	void SpawnShip(b2World* world, double _x, double _y); // Creates the spaceship
-	void DrainFuel(int amount);
+	void DrainFuel(int amount); // Drains fuel
 
-	int GetShipFuel() { return fuel; };
-	float GetAngle();
+	int GetShipFuel() { return fuel; }; // Returns the current ammount of fuel available
+	float GetAngle(); // Returns the ship's rotation
 	
-	void DestroyShip();
+	void DestroyShip(); // Not used yet
 
-	b2Body * GetBody() { return body; }
+	b2Body * GetBody() { return body; } // Returns the ship's body
 
-	void ShipDecelerate();
-	void ShipMoveUp();
-	void ShipMoveDown();
-	void ShipRotateClockwise();
-	void ShipRotateAntiClockwise();
+	void ShipDecelerate(); // SPACE
+	void ShipMoveUp(); // W
+	void ShipMoveDown(); // S
+	void ShipRotateClockwise(); // A
+	void ShipRotateAntiClockwise(); // D
 
-	b2Vec2 GetGlobalPoint(b2Vec2 globalpos) { body->GetWorldPoint(globalpos) ;};
+	b2Vec2 GetGlobalPoint(b2Vec2 pos) { body->GetWorldPoint(pos) ;};
 
-	void SetForceMagnitude(float magnitude) { forceMagnitude = magnitude; };
-	void SetForceRotationCompensation(float compensation) { forceRotationCompensation = compensation; };
+	void SetForceMagnitude(float magnitude) { forceMagnitude = magnitude; }; // Changes the impulse's magnitude
+	void SetForceRotationCompensation(float compensation) { forceRotationCompensation = compensation; }; // Changes the impulse's magnitude for rotation
 
-	b2Vec2 CalculaComponentesDoVetor(float magnitude, float angulo);
+	b2Vec2 VectorComponent(float magnitude, float angulo); // Imported from MatVet.h
+	float ToRad(float angulo) {return angulo*b2_pi / 180;}; // Imported from MatVet.h
+	float ToDegrees(float angle) {return angle * 180 / b2_pi;}; // Imported from MatVet.h
 
-	float GrausParaRadianos(float angulo) {return angulo*b2_pi / 180;};
-	float RadianosParaGraus(float angle) {return angle * 180 / b2_pi;};
+	void CheckShipWithPlatform(int multiplier); // Checks the ship's conditions when in contact with a platform
+	float GetSpeed(); // Returns the ship's speed
 
-	void CheckShipWithPlatform(int multiplier);
-	float GetSpeed();
+	double FixAngle(double ang); // Keeps the angle in values between 0 and 360 for convenience
 
-	double FixAngle(double ang);
+	void Die() { if (!dead) { PrintWarning("You died"); } dead = true; }; // Kills the ship
+	bool GetDead() { return dead; }; // Returns if the ship's dead or not
 
-	void Die() { if (!dead) { PrintWarning("You died"); } dead = true; };
-	bool GetDead() { return dead; };
-
-	void PrintShipStats();
-	void PrintWarning(std::string warning);
+	void PrintShipStats(); // Prints the ship's speed, angle and fuel on the console
+	void PrintWarning(std::string warning); // Prints warnings on the console
 
 private:
-	double x, y;
 	float forceMagnitude, forceRotationCompensation;
-	int fuel,maxfuel;
+	int fuel, maxfuel;
 	bool dead;
-	bool fuelWarning50, fuelWarning25, fuelWarning0;
+	bool fuelWarning75, fuelWarning50, fuelWarning25, fuelWarning0;
 	b2Body* body;
 };
 

@@ -11,8 +11,8 @@
 class Platforms
 {
 public:
-	Platforms();
-	~Platforms();
+	Platforms() {};
+	~Platforms() {};
 	b2Body * SpawnPlatform(b2World * world, double _x, double _y, double _length, int _multiplier)
 	{
 		x = _x - length / 2;

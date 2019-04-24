@@ -138,7 +138,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Platforms.cpp" />
     <ClCompile Include="Render.cpp" />
     <ClCompile Include="RigidbodyCreation.cpp" />
     <ClCompile Include="Source.cpp" />
